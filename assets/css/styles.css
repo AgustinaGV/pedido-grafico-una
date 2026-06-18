@@ -27,6 +27,9 @@ header {
   background: var(--text);
   color: #fff;
   padding: 16px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 .header-brand {
   display: flex;
@@ -51,6 +54,18 @@ header {
 }
 header h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.02em; }
 header span { font-size: 13px; opacity: 0.6; }
+.btn-logout {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+  font-family: inherit;
+  padding: 6px 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-logout:hover { border-color: #fff; color: #fff; }
 
 main { max-width: 880px; margin: 0 auto; padding: 36px 20px 80px; padding-top: 116px; }
 
@@ -328,6 +343,10 @@ button.btn-small:hover { border-color: var(--text); }
   }
   header span {
     font-size: 11px;
+  }
+  .btn-logout {
+    font-size: 11px;
+    padding: 5px 10px;
   }
   main {
     padding-top: 88px;

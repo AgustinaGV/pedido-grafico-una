@@ -8,6 +8,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css">
+  <script>
+    if (sessionStorage.getItem('una_auth') !== '1') {
+      window.location.replace('login.html');
+    }
+  </script>
 </head>
 <body>
 
@@ -20,6 +25,7 @@
       <span>Secretaría de Medios y Comunicación · Rectorado</span>
     </div>
   </div>
+  <button class="btn-logout" onclick="cerrarSesion()">Cerrar sesión</button>
 </header>
 
 <main>
@@ -49,5 +55,11 @@
 </main>
 
 <script src="assets/js/main.js"></script>
+<script>
+  function cerrarSesion() {
+    sessionStorage.removeItem('una_auth');
+    window.location.replace('login.html');
+  }
+</script>
 </body>
 </html>
