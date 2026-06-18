@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedido de piezas gráficas — UNA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <img src="assets/img/2022-una-re-logo-circular-blanco.png" alt="Logo UNA" class="header-logo">
+    <div class="header-divider"></div>
+    <div class="header-text">
+      <h1>Pedido de piezas gráficas</h1>
+      <span>Secretaría de Medios y Comunicación · Rectorado</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="intro">
+    <strong>Instrucciones:</strong> Completá un formulario por cada pieza gráfica que necesitás. Los campos marcados con <span style="color:var(--error)">*</span> son obligatorios. Cada campo de texto indica el máximo de caracteres que entra en la plantilla — si lo superás, la pieza no va a poder reproducir el texto completo. Una vez completado todo, hacé clic en <strong>Generar pedido</strong> para obtener el resumen listo para compartir.
+  </div>
+
+  <div class="pieces-list" id="piecesList"></div>
+
+  <div class="actions-bar">
+    <button class="btn-primary" onclick="addPiece()">+ Agregar otra pieza</button>
+    <button class="btn-secondary" id="btn-generar" onclick="generateOutput()">Generar pedido</button>
+  </div>
+
+  <div class="output-section" id="outputSection">
+    <h2>Pedido generado</h2>
+    <div class="output-text" id="outputText"></div>
+    <div class="output-instructions">
+      El pedido de piezas debe enviarse por mail desde la casilla de la persona responsable de comunicación, a los mails <strong>contenidosweb@una.edu.ar</strong> y <strong>rectorado.diseno@una.edu.ar</strong>, con copia a <strong>v.polo@una.edu.ar</strong> y <strong>ruth.miller.una@gmail.com</strong>
+    </div>
+    <div class="output-actions">
+      <button class="btn-secondary" onclick="editarPedido()">Editar pedido</button>
+      <button class="btn-primary" onclick="copyOutput()">Copiar texto</button>
+      <button class="btn-secondary" onclick="window.print()">Guardar como PDF</button>
+    </div>
+  </div>
+</main>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>
