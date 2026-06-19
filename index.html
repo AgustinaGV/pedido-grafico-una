@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Pedido de piezas gráficas — UNA</title>
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon-una.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,13 +16,16 @@
     if (sessionStorage.getItem('una_auth') !== '1') {
       window.location.replace('login.html');
     }
+    history.scrollRestoration = 'manual';
   </script>
 </head>
 <body>
 
 <header>
   <div class="header-brand">
-    <img src="assets/img/2022-una-re-logo-circular-blanco.png" alt="Logo UNA" class="header-logo">
+    <a href="index.html" class="header-logo-link">
+      <img src="assets/img/2022-una-re-logo-circular-blanco.png" alt="Logo UNA" class="header-logo">
+    </a>
     <div class="header-divider"></div>
     <div class="header-text">
       <h1>Pedido de piezas gráficas</h1>
@@ -30,6 +36,8 @@
 </header>
 
 <main>
+  <div class="ua-banner" id="ua-banner"></div>
+
   <div class="intro">
     <strong>Instrucciones:</strong> Completá un formulario por cada pieza gráfica que necesitás. Los campos marcados con <span style="color:var(--error)">*</span> son obligatorios. Cada campo de texto indica el máximo de caracteres que entra en la plantilla — si lo superás, la pieza no va a poder reproducir el texto completo. Una vez completado todo, hacé clic en <strong>Generar pedido</strong> para obtener el resumen listo para compartir.
   </div>
@@ -42,23 +50,71 @@
   </div>
 
   <div class="output-section" id="outputSection">
-    <h2>Pedido generado</h2>
+    <div class="output-header">
+      <h2>Pedido generado</h2>
+      <span class="output-id" id="output-id"></span>
+    </div>
     <div class="output-text" id="outputText"></div>
+    <button class="btn-output-edit" onclick="editarPedido()">Editar pedido</button>
     <div class="output-instructions">
       El pedido de piezas debe enviarse por mail desde la casilla de la persona responsable de comunicación, a los mails <strong>contenidosweb@una.edu.ar</strong> y <strong>rectorado.diseno@una.edu.ar</strong>, con copia a <strong>v.polo@una.edu.ar</strong> y <strong>ruth.miller.una@gmail.com</strong>
     </div>
     <div class="output-actions">
-      <button class="btn-secondary" onclick="editarPedido()">Editar pedido</button>
-      <button class="btn-primary" onclick="copyOutput()">Copiar texto</button>
-      <button class="btn-secondary" onclick="window.print()">Guardar como PDF</button>
+      <button class="btn-output-primary" onclick="enviarPedido()">Enviar pedido</button>
+      <button class="btn-output-secondary" onclick="nuevoPedido()">Hacer nuevo pedido</button>
     </div>
   </div>
 </main>
 
 <script src="assets/js/main.js"></script>
 <script>
+  window.UA_INFO = {
+    audiovisuales:    { nombre: 'Audiovisuales',    color: '#C60751', sigla: 'AA',  email: 'rectorado.contenidos@gmail.com' },
+    dramaticas:       { nombre: 'Dramáticas',        color: '#F08B1D', sigla: 'AD',  email: 'rectorado.contenidos@gmail.com' },
+    formaciondocente: { nombre: 'Formación Docente', color: '#7E8082', sigla: 'FD',  email: 'rectorado.contenidos@gmail.com' },
+    movimiento:       { nombre: 'Movimiento',        color: '#EC0B8D', sigla: 'AM',  email: 'rectorado.contenidos@gmail.com' },
+    visuales:         { nombre: 'Visuales',          color: '#00B25A', sigla: 'AV',  email: 'rectorado.contenidos@gmail.com' },
+    musicales:        { nombre: 'Musicales',         color: '#0093D1', sigla: 'MS',  email: 'rectorado.contenidos@gmail.com' },
+    criticadeartes:   { nombre: 'Crítica de Artes',  color: '#872175', sigla: 'CA',  email: 'rectorado.contenidos@gmail.com' },
+    folklore:         { nombre: 'Folklore',          color: '#EF3E42', sigla: 'F',   email: 'rectorado.contenidos@gmail.com' },
+    multimediales:    { nombre: 'Multimediales',     color: '#007C85', sigla: 'MM',  email: 'rectorado.contenidos@gmail.com' },
+    rectorado:        { nombre: 'Rectorado',         color: '#00467F', sigla: 'REC', email: 'rectorado.contenidos@gmail.com' },
+    museo:            { nombre: 'Museo',             color: '#1a1a18', sigla: 'MC',  email: 'rectorado.contenidos@gmail.com' },
+  };
+
+  (function mostrarUsuario() {
+    const ua   = sessionStorage.getItem('una_ua');
+    const info = ua && UA_INFO[ua];
+    if (!info) return;
+    const el = document.getElementById('ua-banner');
+    el.style.borderLeftColor = info.color;
+    el.innerHTML = '<span class="ua-banner-dot" style="background:' + info.color + '"></span>'
+      + '<span class="ua-banner-nombre" style="color:' + info.color + '">' + info.nombre + '</span>';
+  })();
+
+  function enviarPedido() {
+    var ua   = sessionStorage.getItem('una_ua');
+    var info = UA_INFO[ua] || {};
+    var id   = window.pedidoActualID || 'PEDIDO-UNA';
+    var cc   = ['polo.viviana@gmail.com', 'garciavega.agustina@gmail.com', info.email]
+                 .filter(function(e) { return !!e; }).join(',');
+    var asunto = id;
+    var cuerpo = document.getElementById('outputText').innerText;
+    var url = 'https://mail.google.com/mail/?view=cm&fs=1'
+      + '&to=' + encodeURIComponent('rectorado.contenidos@gmail.com')
+      + '&cc=' + encodeURIComponent(cc)
+      + '&su=' + encodeURIComponent(asunto)
+      + '&body=' + encodeURIComponent(cuerpo);
+    window.open(url, '_blank');
+  }
+
+  function nuevoPedido() {
+    window.location.reload();
+  }
+
   function cerrarSesion() {
     sessionStorage.removeItem('una_auth');
+    sessionStorage.removeItem('una_ua');
     window.location.replace('login.html');
   }
 </script>

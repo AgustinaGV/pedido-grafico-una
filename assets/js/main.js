@@ -620,8 +620,7 @@ function renderCampo(pieza, campo) {
     var uaSeleccionada = esUA ? UNIDADES.find(function(u) { return u.nombre === val; }) : null;
     var colorBar = '';
     if (esUA && uaSeleccionada) {
-      colorBar = '<div style="height:4px;background:' + uaSeleccionada.color + ';margin-top:4px;"></div>' +
-        '<div style="font-size:11px;color:var(--muted);margin-top:4px;">Sigla: ' + uaSeleccionada.sigla + ' · Color institucional: ' + uaSeleccionada.color + '</div>';
+      colorBar = '<div style="height:4px;background:' + uaSeleccionada.color + ';margin-top:4px;"></div>';
     }
     var opcionesHtml = '<option value="">— Seleccioná —</option>';
     if (esUA) {
@@ -990,10 +989,21 @@ function generateOutput() {
 
   var ahora = new Date();
   var fecha = ahora.toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' });
+  var pad = function(n) { return n.toString().padStart(2, '0'); };
+  var idFecha = ahora.getFullYear().toString() +
+    pad(ahora.getMonth() + 1) + pad(ahora.getDate()) + '_' +
+    pad(ahora.getHours()) + pad(ahora.getMinutes());
+  var uaKey = sessionStorage.getItem('una_ua');
+  var uaInfoGlobal = window.UA_INFO && window.UA_INFO[uaKey];
+  var siglaID = uaInfoGlobal ? uaInfoGlobal.sigla : 'UNA';
+  var pedidoID = window.pedidoActualID || ('PEDIDO-' + siglaID + '-' + idFecha);
+  window.pedidoActualID = pedidoID;
+
   var sep = '─'.repeat(48);
   var sep2 = '─'.repeat(32);
 
   var txt = 'PEDIDO DE PIEZAS GRÁFICAS — UNA\n';
+  txt += 'ID: ' + pedidoID + '\n';
   txt += 'Fecha del pedido: ' + fecha + '\n';
   txt += sep + '\n\n';
 
@@ -1114,6 +1124,8 @@ function generateOutput() {
   }
 
   document.getElementById('outputText').innerHTML = txt;
+  var idEl = document.getElementById('output-id');
+  if (idEl) idEl.textContent = pedidoID;
   var sec = document.getElementById('outputSection');
   sec.style.display = 'block';
   sec.scrollIntoView({ behavior: 'smooth', block: 'start' });

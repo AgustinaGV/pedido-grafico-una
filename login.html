@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Acceso — Pedido de piezas gráficas · UNA</title>
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon-una.svg">
   <script>
@@ -18,7 +21,7 @@
     body {
       font-family: 'Ubuntu', Arial, sans-serif;
       background: #1a1a18;
-      min-height: 100vh;
+      height: 100vh;
       display: flex;
     }
 
@@ -26,12 +29,12 @@
     .login-layout {
       display: flex;
       width: 100%;
-      min-height: 100vh;
+      height: 100%;
     }
 
     /* ── panel gráfico ── */
     .login-graphic {
-      flex: 1;
+      flex: 0 0 60%;
       background: #ffffff;
       overflow: hidden;
       display: flex;
@@ -44,8 +47,8 @@
 
     /* ── panel formulario ── */
     .login-panel {
-      width: 420px;
-      flex-shrink: 0;
+      flex: 0 0 40%;
+      min-width: 0;
       background: #1a1a18;
       display: flex;
       flex-direction: column;
@@ -144,6 +147,15 @@
     .btn-ingresar:hover { opacity: 0.87; }
     .btn-ingresar:active { opacity: 0.75; }
 
+    /* ── error ── */
+    .login-error {
+      font-size: 12px;
+      color: #ff6b6b;
+      margin-top: 8px;
+      display: none;
+    }
+    .login-error.visible { display: block; }
+
     /* ── nota dev ── */
     .login-dev-note {
       margin-top: 28px;
@@ -188,7 +200,7 @@
   <!-- Gráfico decorativo SVG con paleta institucional UNA -->
   <div class="login-graphic">
     <svg viewBox="0 0 380 700" xmlns="http://www.w3.org/2000/svg"
-         width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+         width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
       <rect width="380" height="700" fill="#ffffff"/>
 
       <!-- Columna 1 -->
@@ -263,11 +275,12 @@
             </svg>
           </button>
         </div>
-        <button type="submit" class="btn-ingresar">Ingresar</button>
+        <button type="submit" class="btn-ingresar" id="btn-ingresar">Ingresar</button>
+        <p class="login-error" id="login-error">Usuario o contraseña incorrectos.</p>
       </form>
       <div class="login-dev-note">
         <strong>Nota para el equipo de desarrollo</strong>
-        Prototipo funcional. La autenticación real debe implementarse en el servidor. Por ahora, cualquier dato ingresado da acceso al formulario.
+        Prototipo funcional. Credenciales validadas con SHA-256 contra credentials.json. La autenticación real debe implementarse en el servidor.
       </div>
     </div>
     <span class="login-footer">2026 · Universidad Nacional de las Artes</span>
@@ -288,10 +301,42 @@
         + '<line x1="1" y1="1" x2="23" y2="23"/>';
   }
 
-  function handleLogin(e) {
+  async function sha256(text) {
+    const buffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function handleLogin(e) {
     e.preventDefault();
-    sessionStorage.setItem('una_auth', '1');
-    window.location.href = 'index.html';
+    const usuario   = document.getElementById('usuario').value.trim().toLowerCase();
+    const password  = document.getElementById('contrasena').value;
+    const errorEl   = document.getElementById('login-error');
+    const btnEl     = document.getElementById('btn-ingresar');
+
+    errorEl.classList.remove('visible');
+    btnEl.disabled = true;
+    btnEl.textContent = 'Verificando…';
+
+    try {
+      const creds = await fetch('credentials.json').then(r => r.json());
+      const hash  = await sha256(password);
+      const match = creds.find(c => c.usuario === usuario && c.hash === hash);
+
+      if (match) {
+        sessionStorage.setItem('una_auth', '1');
+        sessionStorage.setItem('una_ua', usuario);
+        window.location.href = 'index.html';
+      } else {
+        errorEl.classList.add('visible');
+        btnEl.disabled = false;
+        btnEl.textContent = 'Ingresar';
+      }
+    } catch {
+      errorEl.textContent = 'Error al cargar las credenciales.';
+      errorEl.classList.add('visible');
+      btnEl.disabled = false;
+      btnEl.textContent = 'Ingresar';
+    }
   }
 </script>
 </body>
